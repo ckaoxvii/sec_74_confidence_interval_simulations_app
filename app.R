@@ -1,6 +1,7 @@
 library(shiny)
 library(bslib)
 library(ggplot2)
+library(plotly)
 library(dplyr)
 
 ui <- page_sidebar(
@@ -58,7 +59,7 @@ ui <- page_sidebar(
   layout_columns(
     card(
       card_header("Confidence Interval Visualization"),
-      plotOutput("ci_plot", height = "500px")
+      plotlyOutput("ci_plot", height = "500px")
     ),
     card(
       card_header("Simulation Results"),
@@ -122,8 +123,8 @@ server <- function(input, output, session) {
     sim_results(ci_results)
   })
   
-  # Create the confidence interval plot as a number line
-  output$ci_plot <- renderPlot({
+  # Create the confidence interval plot with Plotly
+  output$ci_plot <- renderPlotly({
     req(sim_results())
     
     data <- sim_results()
@@ -131,7 +132,7 @@ server <- function(input, output, session) {
     # Add y position for each interval (stacked below the number line)
     data$y_pos <- -(1:nrow(data)) * 0.8
     
-    # Create the plot
+    # Create the base ggplot
     p <- ggplot(data) +
       # Draw the number line at y = 0
       geom_hline(yintercept = 0, color = "black", size = 1) +
@@ -148,15 +149,22 @@ server <- function(input, output, session) {
       
       # Draw confidence intervals as horizontal segments
       geom_segment(aes(x = lower, xend = upper, y = y_pos, yend = y_pos,
-                      color = captures_true), 
+                      color = captures_true,
+                      text = paste("Simulation:", simulation, 
+                                 "<br>Sample Prop:", round(p_hat, 3),
+                                 "<br>CI: [", round(lower, 3), ",", round(upper, 3), "]",
+                                 "<br>Captures True:", ifelse(captures_true, "Yes", "No"))), 
                   size = 2, alpha = 0.8) +
       
       # Add endpoints for confidence intervals
-      geom_point(aes(x = lower, y = y_pos, color = captures_true), size = 1.5) +
-      geom_point(aes(x = upper, y = y_pos, color = captures_true), size = 1.5) +
+      geom_point(aes(x = lower, y = y_pos, color = captures_true,
+                    text = paste("Lower Bound:", round(lower, 3))), size = 1.5) +
+      geom_point(aes(x = upper, y = y_pos, color = captures_true,
+                    text = paste("Upper Bound:", round(upper, 3))), size = 1.5) +
       
       # Add sample proportion points
-      geom_point(aes(x = p_hat, y = y_pos), 
+      geom_point(aes(x = p_hat, y = y_pos,
+                    text = paste("Sample Proportion:", round(p_hat, 3))), 
                 size = 2, color = "black", shape = 16) +
       
       # Draw the true proportion as a red vertical line
@@ -196,7 +204,23 @@ server <- function(input, output, session) {
     p <- p + annotate("text", x = -0.05, y = 0.8, label = "Sim #", 
                      size = 3, fontface = "bold", hjust = 1)
     
-    p
+    # Convert to plotly with custom tooltip
+    ggplotly(p, tooltip = "text") %>%
+      config(displayModeBar = TRUE,
+             modeBarButtonsToRemove = c("pan2d", "select2d", "lasso2d", "autoScale2d", "hoverClosestCartesian", "hoverCompareCartesian")) %>%
+      layout(
+        title = list(
+          text = paste("True Population Proportion =", input$true_prop, "(red line)"),
+          font = list(size = 14)
+        ),
+        showlegend = TRUE,
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          y = -0.1,
+          xanchor = "center"
+        )
+      )
   })
   
   # Display results table with coverage summary included

@@ -138,7 +138,7 @@ server <- function(input, output, session) {
       
       # Add tick marks on the number line
       geom_segment(data = data.frame(x = seq(0, 1, 0.1)), 
-                   aes(x = x, xend = x, y = -0.03, yend = 0.03),
+                   aes(x = x, xend = x, y = 0, yend = 0.03),
                    color = "black", size = 0.5) +
       
       # Add labels for tick marks
@@ -180,9 +180,11 @@ server <- function(input, output, session) {
         plot.subtitle = element_text(size = 12),
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
+        axis.title.y = element_blank(),
         panel.grid = element_blank(),
         legend.position = "bottom",
         axis.line.x = element_line(color = "black"),
+        axis.title.x = element_blank(),
         plot.margin = margin(20, 20, 20, 20)
       )
     

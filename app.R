@@ -23,39 +23,44 @@ ui <- page_sidebar(
     "))
   ),
   sidebar = sidebar(
-    numericInput("true_prop", 
-                 "True Population Proportion:", 
-                 value = 0.6, 
-                 min = 0.01, 
-                 max = 0.99, 
-                 step = 0.01),
-    
-    numericInput("sample_size", 
-                 "Sample Size (n):", 
-                 value = 100, 
-                 min = 10, 
-                 max = 1000, 
-                 step = 10),
-    
-    numericInput("conf_level", 
-                 "Confidence Level (%):", 
-                 value = 95, 
-                 min = 80, 
-                 max = 99, 
-                 step = 1),
-    
-    numericInput("n_simulations", 
-                 "Number of Simulations:", 
-                 value = 50, 
-                 min = 10, 
-                 max = 100, 
-                 step = 5),
-    
-    actionButton("simulate", 
-                 "Run Simulation", 
-                 style = "background-color: #A90533; border-color: #A90533; color: white;"),
+    numericInput(
+      "true_prop", 
+      "True Population Proportion:", 
+      value = 0.6, 
+      min = 0.01, 
+      max = 0.99, 
+      step = 0.01
+    ),
+    numericInput(
+      "sample_size", 
+      "Sample Size (n):", 
+      value = 100, 
+      min = 10, 
+      max = 1000, 
+      step = 10
+    ),
+    numericInput(
+      "conf_level", 
+      "Confidence Level (%):", 
+      value = 95, 
+      min = 80, 
+      max = 99, 
+      step = 1
+    ),
+    numericInput(
+      "n_simulations", 
+      "Number of Simulations:", 
+      value = 50, 
+      min = 10, 
+      max = 100, 
+      step = 5
+    ),
+    actionButton(
+      "simulate", 
+      "Run Simulation", 
+      style = "background-color: #A90533; border-color: #A90533; color: white;"
+    ),
   ),
-  
   layout_columns(
     card(
       card_header("Confidence Interval Visualization"),

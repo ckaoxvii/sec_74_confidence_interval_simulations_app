@@ -134,23 +134,43 @@ server <- function(input, output, session) {
     
     # Create the base ggplot
     p <- ggplot(data) +
-      # Draw the number line at y = 0
-      geom_hline(yintercept = 0, color = "black", size = 1) +
-      
-      # Add tick marks on the number line
-      geom_segment(data = data.frame(x = seq(0, 1, 0.1)), 
-                   aes(x = x, xend = x, y = 0, yend = 0.03),
-                   color = "black", size = 0.5) +
-      
-      # Add labels for tick marks
-      geom_text(data = data.frame(x = seq(0, 1, 0.2), label = seq(0, 1, 0.2)), 
-                aes(x = x, y = -0.07, label = label),
-                size = 3.5) +
-      
+      geom_hline( # draw number line at y = 0
+        yintercept = 0, 
+        color = "black", 
+        size = 0.5
+      ) +
+      geom_segment( # tick marks on number line
+        data = data.frame(
+          x = seq(0, 1, 0.1)
+        ), 
+        aes(
+          x = x, 
+          xend = x, 
+          y = 0, 
+          yend = 0.5
+        ),
+        color = "black"
+      ) +
+      geom_text( # labels for tick marks on number line
+        data = data.frame(
+          x = seq(0, 1, 0.2), 
+          label = c(0, 0.2, 0.4, 0.6, 0.8, 1)
+        ), 
+        aes(
+          x = x, 
+          y = -0.75, 
+          label = label
+        )
+      ) +
       # Draw confidence intervals as horizontal segments
-      geom_segment(aes(x = lower, xend = upper, y = y_pos, yend = y_pos,
-                      color = captures_true,
-                      text = paste("Simulation:", simulation, 
+      geom_segment(
+        aes(
+          x = lower, 
+          xend = upper, 
+          y = y_pos, 
+          yend = y_pos,
+          color = captures_true,
+          text = paste("Simulation:", simulation, 
                                  "<br>Sample Prop:", round(p_hat, 3),
                                  "<br>CI: [", round(lower, 3), ",", round(upper, 3), "]",
                                  "<br>Captures True:", ifelse(captures_true, "Yes", "No"))), 
@@ -205,22 +225,21 @@ server <- function(input, output, session) {
                      size = 3, fontface = "bold", hjust = 1)
     
     # Convert to plotly with custom tooltip
-    ggplotly(p, tooltip = "text") %>%
-      config(displayModeBar = TRUE,
-             modeBarButtonsToRemove = c("pan2d", "select2d", "lasso2d", "autoScale2d", "hoverClosestCartesian", "hoverCompareCartesian")) %>%
-      layout(
-        title = list(
-          text = paste("True Population Proportion =", input$true_prop, "(red line)"),
-          font = list(size = 14)
-        ),
-        showlegend = TRUE,
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          y = -0.1,
-          xanchor = "center"
-        )
+    ggplotly(p, tooltip = "text") |> 
+    config(displayModeBar = FALSE) |> 
+    layout(
+      title = list(
+        text = paste("True Population Proportion: ", "<b><span style='color:#A90533;'>", input$true_prop, "</span></b>"),
+        font = list(size = 14)
+      ),
+      showlegend = TRUE,
+      legend = list(
+        orientation = "h",
+        x = 0.5,
+        y = -0.1,
+        xanchor = "center"
       )
+    )
   })
   
   # Display results table with coverage summary included
